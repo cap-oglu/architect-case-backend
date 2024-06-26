@@ -107,7 +107,7 @@ namespace FinancialManagementMVC.Controllers
 
         // PUT: api/Transactions/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTransaction(int id, Transaction transaction)
+        public async Task<IActionResult> PutTransaction(int id, TransactionDto transactionDto)
         {
             var userIdString = User.FindFirst("id")?.Value;
             if (!int.TryParse(userIdString, out var userId))
@@ -115,14 +115,36 @@ namespace FinancialManagementMVC.Controllers
                 return BadRequest("User ID is missing or invalid.");
             }
 
-            if (!_context.BankAccounts.Any(b => b.Id == transaction.BankAccountId && b.UserId == userId))
+            // Fetch the transaction to update
+            var transaction = await _context.Transactions.Include(t => t.BankAccount)
+                                                         .FirstOrDefaultAsync(t => t.Id == id);
+            if (transaction == null)
+            {
+                return NotFound();
+            }
+
+            // Check if the user owns the bank account from which the transaction is made
+            if (transaction.BankAccount.UserId != userId)
             {
                 return BadRequest("Operation not allowed on this transaction.");
             }
 
-            if (id != transaction.Id)
+            // Validate the destination bank account
+            var destinationAccount = await _context.BankAccounts.FindAsync(transactionDto.BankAccountId);
+            if (destinationAccount == null || destinationAccount.UserId != userId)
             {
-                return BadRequest();
+                return BadRequest("Destination bank account not valid or does not belong to user.");
+            }
+
+            // Update properties if the above checks are passed
+            transaction.Description = transactionDto.Description;
+            transaction.Amount = transactionDto.Amount;
+            transaction.TransactionDate = transactionDto.TransactionDate;
+
+            // Optional: Update the BankAccount only if it's allowed and validated
+            if (transaction.BankAccountId != transactionDto.BankAccountId)
+            {
+                transaction.BankAccountId = transactionDto.BankAccountId;
             }
 
             _context.Entry(transaction).State = EntityState.Modified;
@@ -143,6 +165,7 @@ namespace FinancialManagementMVC.Controllers
             }
             return NoContent();
         }
+
 
 
         // DELETE: api/Transactions/5

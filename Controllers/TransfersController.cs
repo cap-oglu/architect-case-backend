@@ -21,7 +21,7 @@ namespace FinancialManagementMVC.Controllers
 
         // GET: api/Transfers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Transfer>>> GetAllUserTransfers()
+        public async Task<ActionResult<IEnumerable<Transfer>>> GetTransfers()
         {
            var userIdString = User.FindFirst("id")?.Value;
             if (!int.TryParse(userIdString, out var userId))

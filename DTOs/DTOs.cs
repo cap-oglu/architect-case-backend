@@ -27,6 +27,11 @@ namespace FinancialManagementMVC.DTOs
         public string AccountNumber { get; set; }
         public decimal   Balance { get; set; }
         public string Currency { get; set; }
+        //public int UserId { get; set; }
+
+        public int Id { get; set; }
+        
+        
     }
 
     public class TransactionDto
