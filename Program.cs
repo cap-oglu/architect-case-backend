@@ -9,11 +9,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using FinancialManagementMVC.Utilities;
 using System.Text.Json.Serialization;
+using FinancialManagementMVC.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>(); // Add this ?
 //builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>(); // Add this ?
+builder.Services.AddScoped<IExchangeRateService, MockExchangeRateService>();
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddJsonOptions(x =>
