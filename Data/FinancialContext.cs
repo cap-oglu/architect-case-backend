@@ -31,20 +31,19 @@ namespace FinancialManagementMVC.Data
             .HasMany(b => b.Transactions)
             .WithOne(t => t.BankAccount)
             .HasForeignKey(t => t.BankAccountId)
-            .OnDelete(DeleteBehavior.Restrict);
-
+            .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Transfer>()
             .HasOne(t => t.FromAccount)
             .WithMany()  // Assuming no navigation property back to Transfers from BankAccount
             .HasForeignKey(t => t.FromAccountId)
-            .OnDelete(DeleteBehavior.Restrict);  // Prevent deletion if there are associated transfers
+            .OnDelete(DeleteBehavior.NoAction);  // Prevent deletion if there are associated transfers
 
             modelBuilder.Entity<Transfer>()
                 .HasOne(t => t.ToAccount)
                 .WithMany()  // Assuming no navigation property back to Transfers from BankAccount
                 .HasForeignKey(t => t.ToAccountId)
-                .OnDelete(DeleteBehavior.Restrict);  // Prevent deletion if there are associated transfers
+                .OnDelete(DeleteBehavior.NoAction);  // Prevent deletion if there are associated transfers
         }
     }
 }
