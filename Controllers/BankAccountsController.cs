@@ -83,9 +83,9 @@ namespace FinancialManagementMVC.Controllers
 
         // PUT: api/BankAccounts/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBankAccount(int id, BankAccount bankAccount)
+        public async Task<IActionResult> PutBankAccount(int id, BankAccountDto bankAccountDto)
         {
-            if (id != bankAccount.Id)
+            if (id != bankAccountDto.Id)
             {
                 return BadRequest();
             }
@@ -95,10 +95,25 @@ namespace FinancialManagementMVC.Controllers
             {
                 return BadRequest("User ID is missing or invalid.");
             }
+
+            
+            var bankAccount = await _context.BankAccounts
+                                            .FirstOrDefaultAsync(b => b.Id == id && b.UserId == userId);
+
+            if (bankAccount == null)
+            {
+                return NotFound();
+            }
+
             if (bankAccount.UserId != userId)
             {
                 return BadRequest("You can only edit your own accounts.");
             }
+
+            bankAccount.AccountNumber = bankAccountDto.AccountNumber;
+            bankAccount.Balance = bankAccountDto.Balance;
+            bankAccount.Currency = bankAccountDto.Currency;
+
 
             _context.Entry(bankAccount).State = EntityState.Modified;
 
@@ -120,6 +135,7 @@ namespace FinancialManagementMVC.Controllers
 
             return NoContent();
         }
+        
 
         // DELETE: api/BankAccounts/5
         [HttpDelete("{id}")]
@@ -137,7 +153,7 @@ namespace FinancialManagementMVC.Controllers
             {
                 return NotFound();
             }
-
+            
             _context.BankAccounts.Remove(bankAccount);
             await _context.SaveChangesAsync();
 
